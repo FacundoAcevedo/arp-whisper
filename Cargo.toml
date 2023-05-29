@@ -1,0 +1,22 @@
+[package]
+name = "arp-whisper"
+version = "0.1.0"
+edition = "2021"
+include = ["src/**/*", "Cargo.toml", "README.md", "LICENCE"]
+homepage = "https://github.com/FacundoAcevedo/arp-wishper"
+description = "Respond to arp requests based on a host lists."
+repository = "https://github.com/FacundoAcevedo/arp-wishper"
+keywords = ["cli", "arp", "network", "spoof"]
+categories = ["command-line-interface"]
+license = "GPLv3"
+authors = ["Facundo Acevedo <facevedo@disroot.org>"]
+
+
+# Linker: gcc-mips-linux-gnu
+# [target.mips-unknown-linux-musl]
+# linker = "mips-linux-musl-gcc"
+# rustflags = ["-C", "target-feature=+crt-static", "-C", "link-arg=-s"]
+
+[dependencies]
+pnet = "0.33.0"
+rust-ini = "0.19.0"
