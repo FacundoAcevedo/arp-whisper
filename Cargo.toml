@@ -8,7 +8,7 @@ description = "Respond to arp requests based on a host lists."
 repository = "https://github.com/FacundoAcevedo/arp-wishper"
 keywords = ["cli", "arp", "network", "spoof"]
 categories = ["command-line-interface"]
-license = "GPLv3"
+license = "GPL-3.0-only"
 authors = ["Facundo Acevedo <facevedo@disroot.org>"]
 
 
