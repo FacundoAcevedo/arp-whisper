@@ -1,37 +1,37 @@
 
-# arp-wishper 📡
+# arp-whisper 📡
 
-Welcome to the arp-wishper project! 🎉
+Welcome to the arp-whisper project! 🎉
 
 ## Description
 
-arp-wishper is an open-source project written in Rust. It listens to ARP requests on a network interface and responds to them based on a list of IP-MAC address mappings defined in a configuration file. With arp-wishper, you can easily create an ARP responder to handle network queries and provide the appropriate MAC address for each IP address.
+arp-whisper is an open-source project written in Rust. It listens to ARP requests on a network interface and responds to them based on a list of IP-MAC address mappings defined in a configuration file. With arp-whisper, you can easily create an ARP responder to handle network queries and provide the appropriate MAC address for each IP address.
 
 ## How It Works
 
-arp-wishper continuously monitors incoming ARP requests on the specified network interface. It checks if the request's target IP address matches any of the IP addresses in the configuration file. If a match is found, arp-wishper generates an ARP response with the corresponding MAC address and sends it back to the requester.
+arp-whisper continuously monitors incoming ARP requests on the specified network interface. It checks if the request's target IP address matches any of the IP addresses in the configuration file. If a match is found, arp-whisper generates an ARP response with the corresponding MAC address and sends it back to the requester.
 
 ## How to Contribute
 
-We welcome contributions from everyone! Whether you are a seasoned developer or new to open-source, there are various ways you can contribute to arp-wishper:
+We welcome contributions from everyone! Whether you are a seasoned developer or new to open-source, there are various ways you can contribute to arp-whisper:
 
-- 🐛 **Submit Bug Reports**: If you encounter any issues or bugs while using arp-wishper, please submit a detailed bug report on our [issue tracker](https://github.com/FacundoAcevedo/arp-wishper/issues). Include steps to reproduce the problem and any relevant information.
+- 🐛 **Submit Bug Reports**: If you encounter any issues or bugs while using arp-whisper, please submit a detailed bug report on our [issue tracker](https://github.com/FacundoAcevedo/arp-whisper/issues). Include steps to reproduce the problem and any relevant information.
 - 💡 **Suggest Enhancements**: Have an idea for a new feature or an improvement? Feel free to open an issue and share your suggestions. We appreciate your input!
-- 💻 **Submit Pull Requests**: If you want to contribute code to arp-wishper, fork the repository, make your changes, and submit a pull request. We'll review your contribution and work together to merge it into the project.
+- 💻 **Submit Pull Requests**: If you want to contribute code to arp-whisper, fork the repository, make your changes, and submit a pull request. We'll review your contribution and work together to merge it into the project.
 - 📖 **Improve Documentation**: Documentation is crucial for any project. If you find areas where the documentation can be enhanced or if you'd like to add more examples or explanations, please don't hesitate to make a pull request with your updates.
-- 👍 **Spread the Word**: If you find arp-wishper useful, please star the project on [GitHub](https://github.com/FacundoAcevedo/arp-wishper) and share it with others who might benefit from it.
+- 👍 **Spread the Word**: If you find arp-whisper useful, please star the project on [GitHub](https://github.com/FacundoAcevedo/arp-whisper) and share it with others who might benefit from it.
 
 ## Installation
 
-To install arp-wishper, ensure you have Rust and Cargo installed, then run the following command:
+To install arp-whisper, ensure you have Rust and Cargo installed, then run the following command:
 
 ```shell
-cargo install arp-wishper
+cargo install arp-whisper
 ```
 
 ## Configuration Example
 
-You can configure arp-wishper using a configuration file. Here's an example of the configuration file format:
+You can configure arp-whisper using a configuration file. Here's an example of the configuration file format:
 ```ini
 [Network]
 interface = eth0
@@ -45,7 +45,7 @@ interface = eth0
 In this example, the [Network] section specifies the network interface to listen on, and the [Hosts] section defines the IP-MAC address mappings.
 How to Run
 
-To run arp-wishper with your configuration file, use the following command:
+To run arp-whisper with your configuration file, use the following command:
 
 ```shell
 sudo arp-whisper config.ini
@@ -55,4 +55,4 @@ Replace config.ini with the path to your actual configuration file.
 
 ## License
 
-arp-wishper is licensed under the GNU General Public License v3.0 (GPLv3). See the LICENSE file for more details.
+arp-whisper is licensed under the GNU General Public License v3.0 (GPLv3). See the LICENSE file for more details.

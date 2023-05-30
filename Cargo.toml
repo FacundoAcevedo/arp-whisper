@@ -1,11 +1,11 @@
 [package]
 name = "arp-whisper"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENCE"]
-homepage = "https://github.com/FacundoAcevedo/arp-wishper"
+homepage = "https://github.com/FacundoAcevedo/arp-whisper.git"
 description = "Respond to arp requests based on a host lists."
-repository = "https://github.com/FacundoAcevedo/arp-wishper"
+repository = "https://github.com/FacundoAcevedo/arp-whisper.git"
 keywords = ["cli", "arp", "network", "spoof"]
 categories = ["command-line-interface"]
 license = "GPL-3.0-only"
