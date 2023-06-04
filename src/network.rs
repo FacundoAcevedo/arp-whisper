@@ -173,7 +173,11 @@ fn forge_arp_response(
         .send_to(ethernet_packet.packet(), None)
         .unwrap()
         .unwrap();
-    println!("ARP Reply: Sent...");
+    log::debug!(
+        "ARP Reply: Sent to ip: {}, mac: {}",
+        destination_ip_address,
+        destination_mac_address
+    );
 }
 
 /// Responds to ARP queries received on the specified network interface with the provided list of hosts.
@@ -228,11 +232,14 @@ pub fn respond_arp_queries(interface_name: &str, hosts: Vec<Host>) {
         {
             // Get the host that needs to "respond" to the ARP request
             if let Some(sender_host) = find_host_by_ip(&hosts, arp.get_target_proto_addr()) {
-                let sender_mac_address = sender_host.mac_address;
-                println!("{}", arp.get_target_proto_addr());
+                log::debug!(
+                    "[ARP Request]: from ip: {}, mac: {}",
+                    sender_host.ip_address,
+                    sender_host.mac_address
+                );
                 forge_arp_response(
                     arp.get_target_proto_addr(),
-                    sender_mac_address,
+                    sender_host.mac_address,
                     arp.get_sender_proto_addr(),
                     arp.get_sender_hw_addr(),
                     &source_interface,

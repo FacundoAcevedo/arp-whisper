@@ -33,6 +33,10 @@ cargo install arp-whisper
 
 You can configure arp-whisper using a configuration file. Here's an example of the configuration file format:
 ```ini
+; Optional field
+; Default value: info
+; Possible values: info, warn, debug, off
+logging_level = "debug"
 [Network]
 interface = eth0
 

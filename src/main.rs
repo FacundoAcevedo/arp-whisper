@@ -1,4 +1,5 @@
 mod network;
+use simple_logger::{self, SimpleLogger};
 use std::env;
 
 use std::process;
@@ -18,19 +19,42 @@ fn main() {
             process::exit(1);
         }
     };
-    println!("Using configuration: {}", config_path);
 
     // Parse the configuration
-    let conf = Ini::load_from_file(config_path).unwrap();
+    let conf = Ini::load_from_file(config_path.clone()).unwrap();
     let interface_name = conf.get_from(Some("Network"), "interface").unwrap();
-    println!("Interface name: {}", interface_name);
+    let log_level = conf
+        .general_section()
+        .get("logging_level")
+        .unwrap_or("info");
+    match log_level {
+        "warn" => SimpleLogger::new()
+            .with_level(log::LevelFilter::Warn)
+            .init()
+            .unwrap(),
+        "debug" => SimpleLogger::new()
+            .with_level(log::LevelFilter::Debug)
+            .init()
+            .unwrap(),
+        "off" => SimpleLogger::new()
+            .with_level(log::LevelFilter::Off)
+            .init()
+            .unwrap(),
+        // "info" or option not specified
+        _ => SimpleLogger::new()
+            .with_level(log::LevelFilter::Info)
+            .init()
+            .unwrap(),
+    }
+    log::info!("Using configuration: {}", config_path);
+    log::info!("Hearing to ARP requests using: {}", interface_name);
 
     // Let's get all the Hosts
     let mut hosts = Vec::new();
     for (k, v) in conf.section(Some("Hosts")).unwrap().iter() {
         hosts.push(new_host(k, v));
     }
-    println!("Hosts defined: {}", hosts.len());
+    log::debug!("Hosts defined in configuration: {}", hosts.len());
 
     respond_arp_queries(interface_name, hosts);
 }
