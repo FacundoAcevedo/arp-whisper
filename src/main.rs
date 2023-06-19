@@ -21,8 +21,22 @@ fn main() {
     };
 
     // Parse the configuration
-    let conf = Ini::load_from_file(config_path.clone()).unwrap();
-    let interface_name = conf.get_from(Some("Network"), "interface").unwrap();
+    let conf = match Ini::load_from_file(config_path.clone()) {
+        Ok(conf) => conf,
+        Err(error) => {
+            eprintln!("Loading the configuration file failed with: {}", error);
+            process::exit(1);
+        }
+    };
+
+    let interface_name = match conf.get_from(Some("Network"), "interface") {
+        Some(interface_name) => interface_name,
+        None => {
+            eprintln!("Error: No interface defined.");
+            process::exit(1);
+        }
+    };
+
     let log_level = conf
         .general_section()
         .get("logging_level")
