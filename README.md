@@ -1,4 +1,3 @@
-
 # arp-whisper 📡
 
 Welcome to the arp-whisper project! 🎉
@@ -29,9 +28,32 @@ To install arp-whisper, ensure you have Rust and Cargo installed, then run the f
 cargo install arp-whisper
 ```
 
+### Systemd service
+
+To install the service run:
+
+```shell
+sudo install -o root -g root -m 644 etc/arp-whisper.service /etc/systemd/system/
+# Reload the daemon
+sudo systemctl daemon-reload
+# Start the service
+sudo systemctl start arp-whisper
+```
+
+### AppArmor profile
+
+`arp-whisper` has to be installed in `/usr/bin/arp-whisper`
+
+```shell
+sudo install -o root -g root -m 644 /path/to/your/usr.bin.arp-whisper /etc/apparmor.d/
+# Load the profile
+sudo apparmor_parser -r /etc/apparmor.d/usr.bin.arp-whisper
+```
+
 ## Configuration Example
 
 You can configure arp-whisper using a configuration file. Here's an example of the configuration file format:
+
 ```ini
 ; Optional field
 ; Default value: info
