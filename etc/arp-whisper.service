@@ -1,0 +1,31 @@
+[Unit]
+Description=Arp whisper
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/bin/arp-whisper /etc/arp-whisper.ini
+Nice=19
+# Sandboxing
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+PrivateIPC=yes
+PrivateTmp=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectSystem=strict
+RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_PACKET
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=true
+SystemCallFilter=pselect6 recvfrom close setsockopt socket write sendto bind fcntl read fstat poll lseek mmap mprotect munmap brk rt_sigaction ioctl pread64 access recvmsg getsockname execve sigaltstack arch_prctl sched_getaffinity set_tid_address openat set_robust_list prlimit64 getrandom statx rseq
+UMask=0027

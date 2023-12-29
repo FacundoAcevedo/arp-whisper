@@ -1,0 +1,18 @@
+# AppArmor policy for arp-whisper
+# Author: Facundo Acevedo
+# Copyright: Facundo Acevedo
+
+include <tunables/global>
+
+/usr/bin/arp-whisper {
+  # Include the base abstraction
+  include <abstractions/base>
+
+  # Allow raw network capability
+  capability net_raw,
+
+  # Read access to the arp-whisper.ini file
+  owner /etc/arp-whisper.ini r,
+  owner /etc/arp-whisper/** r,
+
+}
