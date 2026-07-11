@@ -103,3 +103,39 @@ fn load_hosts(conf: &Ini) -> Result<Vec<Host>, NetworkError> {
 
     Ok(hosts)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn load_hosts_should_parse_hosts_from_config() {
+        let conf = Ini::load_from_str(
+            r#"
+[Hosts]
+192.168.1.2 = aa:bb:cc:dd:ee:ff
+192.168.1.3 = 00:11:22:33:44:55
+"#,
+        )
+        .expect("config should parse");
+
+        let hosts = load_hosts(&conf).expect("hosts should load");
+
+        assert_eq!(hosts.len(), 2);
+    }
+
+    #[test]
+    fn load_hosts_should_fail_when_hosts_section_is_missing() {
+        let conf = Ini::load_from_str(
+            r#"
+[Network]
+interface = eth0
+"#,
+        )
+        .expect("config should parse");
+
+        let error = load_hosts(&conf).expect_err("hosts section should be required");
+
+        assert_eq!(error, NetworkError::MissingHostsSection);
+    }
+}
