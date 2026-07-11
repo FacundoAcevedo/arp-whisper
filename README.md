@@ -1,64 +1,36 @@
-# arp-whisper 📡
+# arp-whisper
 
-Welcome to the arp-whisper project! 🎉
+`arp-whisper` is a small Rust ARP responder.
 
-## Description
+It listens for ARP requests on one interface and replies with the MAC address configured for the target IP. This is useful when you need deterministic ARP replies for a set of hosts on a controlled network.
 
-arp-whisper is an open-source project written in Rust. It listens to ARP requests on a network interface and responds to them based on a list of IP-MAC address mappings defined in a configuration file. With arp-whisper, you can easily create an ARP responder to handle network queries and provide the appropriate MAC address for each IP address.
+## What it does
 
-## How It Works
+- Reads an INI configuration file
+- Watches one network interface for ARP requests
+- Matches the request target IP against a configured host list
+- Sends an ARP reply with the configured MAC address
+- Logs to stderr with selectable log levels
 
-arp-whisper continuously monitors incoming ARP requests on the specified network interface. It checks if the request's target IP address matches any of the IP addresses in the configuration file. If a match is found, arp-whisper generates an ARP response with the corresponding MAC address and sends it back to the requester.
+## Requirements
 
-## How to Contribute
+- Linux or macOS with a working Rust toolchain
+- Root privileges or `CAP_NET_RAW`
+- A network interface that can see ARP traffic
 
-We welcome contributions from everyone! Whether you are a seasoned developer or new to open-source, there are various ways you can contribute to arp-whisper:
+## Configuration
 
-- 🐛 **Submit Bug Reports**: If you encounter any issues or bugs while using arp-whisper, please submit a detailed bug report on our [issue tracker](https://github.com/FacundoAcevedo/arp-whisper/issues). Include steps to reproduce the problem and any relevant information.
-- 💡 **Suggest Enhancements**: Have an idea for a new feature or an improvement? Feel free to open an issue and share your suggestions. We appreciate your input!
-- 💻 **Submit Pull Requests**: If you want to contribute code to arp-whisper, fork the repository, make your changes, and submit a pull request. We'll review your contribution and work together to merge it into the project.
-- 📖 **Improve Documentation**: Documentation is crucial for any project. If you find areas where the documentation can be enhanced or if you'd like to add more examples or explanations, please don't hesitate to make a pull request with your updates.
-- 👍 **Spread the Word**: If you find arp-whisper useful, please star the project on [GitHub](https://github.com/FacundoAcevedo/arp-whisper) and share it with others who might benefit from it.
+The binary expects a config file path as its only argument:
 
-## Installation
-
-To install arp-whisper, ensure you have Rust and Cargo installed, then run the following command:
-
-```shell
-cargo install arp-whisper
+```bash
+arp-whisper <CONFIG_PATH>
 ```
 
-### Systemd service
-
-To install the service run:
-
-```shell
-sudo install -o root -g root -m 644 etc/arp-whisper.service /etc/systemd/system/
-# Reload the daemon
-sudo systemctl daemon-reload
-# Start the service
-sudo systemctl start arp-whisper
-```
-
-### AppArmor profile
-
-`arp-whisper` has to be installed in `/usr/bin/arp-whisper`
-
-```shell
-sudo install -o root -g root -m 644 /path/to/your/usr.bin.arp-whisper /etc/apparmor.d/
-# Load the profile
-sudo apparmor_parser -r /etc/apparmor.d/usr.bin.arp-whisper
-```
-
-## Configuration Example
-
-You can configure arp-whisper using a configuration file. Here's an example of the configuration file format:
+Example configuration:
 
 ```ini
-; Optional field
-; Default value: info
-; Possible values: info, warn, debug, off
 logging_level = "debug"
+
 [Network]
 interface = eth0
 
@@ -66,19 +38,165 @@ interface = eth0
 ; ip = mac_address
 192.168.1.2 = aa:bb:cc:dd:ee:ff
 192.168.1.3 = 00:11:22:33:44:55
+192.168.100.33 = 00:11:22:33:44:55
 ```
 
-In this example, the [Network] section specifies the network interface to listen on, and the [Hosts] section defines the IP-MAC address mappings.
-How to Run
+### Configuration keys
 
-To run arp-whisper with your configuration file, use the following command:
+- `logging_level`
+  - Optional
+  - Valid values: `info`, `warn`, `debug`, `off`
+  - Default: `info`
+- `[Network].interface`
+  - Required
+  - Name of the interface to listen on, for example `eth0` or `en0`
+- `[Hosts]`
+  - Required
+  - Each entry maps an IPv4 address to a MAC address
 
-```shell
-sudo arp-whisper config.ini
+## Build
+
+From source:
+
+```bash
+cargo build
 ```
 
-Replace config.ini with the path to your actual configuration file.
+Release build:
+
+```bash
+cargo build --release
+```
+
+## Run
+
+Build a release binary if you do not already have one:
+
+```bash
+cargo build --release
+```
+
+Then run the binary with root privileges:
+
+```bash
+sudo ./target/release/arp-whisper example-config/config.ini
+```
+
+### Example run
+
+With this config:
+
+```ini
+[Network]
+interface = eth0
+
+[Hosts]
+192.168.1.2 = aa:bb:cc:dd:ee:ff
+```
+
+arp-whisper will reply to an ARP request for `192.168.1.2` with `aa:bb:cc:dd:ee:ff`.
+
+## Installation
+
+Install the binary from the repository:
+
+```bash
+cargo install --path .
+```
+
+If you want a system-wide binary for the service file, install it to the path used by your deployment. The bundled `arp-whisper.service` currently expects the binary at `/bin/arp-whisper`.
+
+## Systemd
+
+The repository includes a systemd unit in `etc/arp-whisper.service`.
+
+Example deployment:
+
+```bash
+sudo install -o root -g root -m 644 etc/arp-whisper.service /etc/systemd/system/
+sudo install -o root -g root -m 755 target/release/arp-whisper /bin/arp-whisper
+sudo install -o root -g root -m 644 example-config/config.ini /etc/arp-whisper.ini
+sudo systemctl daemon-reload
+sudo systemctl enable --now arp-whisper
+```
+
+The service enables:
+
+- `CAP_NET_RAW`
+- `RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_PACKET`
+- `NoNewPrivileges=yes`
+- `ProtectSystem=strict`
+
+If you change the binary path, update `ExecStart` in the unit file accordingly.
+
+## AppArmor
+
+The repository also includes an AppArmor profile in `etc/usr.bin.arp-whisper`.
+
+The profile assumes the binary is installed at `/usr/bin/arp-whisper`.
+
+Example:
+
+```bash
+sudo install -o root -g root -m 644 etc/usr.bin.arp-whisper /etc/apparmor.d/
+sudo apparmor_parser -r /etc/apparmor.d/usr.bin.arp-whisper
+```
+
+## Development
+
+Useful `make` targets:
+
+```bash
+make test
+make coverage
+make validate
+make fmt
+make clippy
+```
+
+## Testing
+
+Run the unit tests:
+
+```bash
+make test
+```
+
+Generate an HTML coverage report:
+
+```bash
+make coverage
+```
+
+The report is written to `target/coverage/tarpaulin-report.html`.
+
+## Troubleshooting
+
+### `Interface not found`
+
+The interface name in `[Network].interface` does not exist on the machine.
+
+Check the available interfaces and update the config file.
+
+### `invalid MAC address` or `invalid IP address`
+
+One of the entries in `[Hosts]` is malformed.
+
+Use standard IPv4 notation and a colon-separated MAC address:
+
+```ini
+192.168.1.2 = aa:bb:cc:dd:ee:ff
+```
+
+### No replies are sent
+
+Check the following:
+
+- The process has root privileges or `CAP_NET_RAW`
+- The interface sees the ARP requests
+- The target IP exists in `[Hosts]`
+- The config file path passed to the binary is correct
 
 ## License
 
-arp-whisper is licensed under the GNU General Public License v3.0 (GPLv3). See the LICENSE file for more details.
+`arp-whisper` is licensed under GPL-3.0-only. See `LICENCE` for details.
