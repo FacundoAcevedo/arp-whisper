@@ -248,3 +248,59 @@ pub fn respond_arp_queries(interface_name: &str, hosts: Vec<Host>) {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::net::IpAddr;
+
+    fn host(ip: &str, mac: &str) -> Host {
+        new_host(ip, mac)
+    }
+
+    #[test]
+    fn new_host_should_parse_ip_and_mac_addresses() {
+        let host = host("192.168.1.100", "01:23:45:67:89:ab");
+
+        assert_eq!(
+            host.ip_address,
+            IpAddr::V4(Ipv4Addr::new(192, 168, 1, 100))
+        );
+        assert_eq!(host.mac_address, MacAddr::new(0x01, 0x23, 0x45, 0x67, 0x89, 0xab));
+    }
+
+    #[test]
+    #[should_panic(expected = "Error parsing ip address")]
+    fn new_host_should_panic_when_ip_is_invalid() {
+        let _ = host("not-an-ip", "01:23:45:67:89:ab");
+    }
+
+    #[test]
+    fn find_host_by_ip_should_return_matching_host() {
+        let target = Ipv4Addr::new(192, 168, 1, 101);
+        let hosts = vec![
+            host("192.168.1.100", "01:23:45:67:89:ab"),
+            host("192.168.1.101", "cd:ef:12:34:56:78"),
+            host("192.168.1.102", "00:11:22:33:44:55"),
+        ];
+
+        let found = find_host_by_ip(&hosts, target);
+
+        assert_eq!(
+            found.map(|host| host.mac_address),
+            Some(MacAddr::new(0xcd, 0xef, 0x12, 0x34, 0x56, 0x78))
+        );
+    }
+
+    #[test]
+    fn find_host_by_ip_should_return_none_when_no_match_exists() {
+        let hosts = vec![
+            host("192.168.1.100", "01:23:45:67:89:ab"),
+            host("192.168.1.101", "cd:ef:12:34:56:78"),
+        ];
+
+        let found = find_host_by_ip(&hosts, Ipv4Addr::new(192, 168, 1, 200));
+
+        assert!(found.is_none());
+    }
+}

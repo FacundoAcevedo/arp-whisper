@@ -1,12 +1,38 @@
 mod network;
-use simple_logger::{self, SimpleLogger};
+use log::{LevelFilter, Log, Metadata, Record};
 use std::env;
-
+use std::io::{self, Write};
 use std::process;
+use std::sync::OnceLock;
 
 use ini::Ini;
 
 use crate::network::{new_host, respond_arp_queries};
+
+struct StderrLogger;
+
+static LOGGER: OnceLock<StderrLogger> = OnceLock::new();
+
+impl Log for StderrLogger {
+    fn enabled(&self, metadata: &Metadata<'_>) -> bool {
+        metadata.level() <= log::max_level()
+    }
+
+    fn log(&self, record: &Record<'_>) {
+        if self.enabled(record.metadata()) {
+            let mut stderr = io::stderr().lock();
+            let _ = writeln!(stderr, "[{}] {}", record.level(), record.args());
+        }
+    }
+
+    fn flush(&self) {}
+}
+
+fn init_logger(level: LevelFilter) {
+    let logger = LOGGER.get_or_init(|| StderrLogger);
+    log::set_logger(logger).expect("logger already initialized");
+    log::set_max_level(level);
+}
 
 fn main() {
     let mut args = env::args().skip(1);
@@ -42,23 +68,11 @@ fn main() {
         .get("logging_level")
         .unwrap_or("info");
     match log_level {
-        "warn" => SimpleLogger::new()
-            .with_level(log::LevelFilter::Warn)
-            .init()
-            .unwrap(),
-        "debug" => SimpleLogger::new()
-            .with_level(log::LevelFilter::Debug)
-            .init()
-            .unwrap(),
-        "off" => SimpleLogger::new()
-            .with_level(log::LevelFilter::Off)
-            .init()
-            .unwrap(),
+        "warn" => init_logger(LevelFilter::Warn),
+        "debug" => init_logger(LevelFilter::Debug),
+        "off" => init_logger(LevelFilter::Off),
         // "info" or option not specified
-        _ => SimpleLogger::new()
-            .with_level(log::LevelFilter::Info)
-            .init()
-            .unwrap(),
+        _ => init_logger(LevelFilter::Info),
     }
     log::info!("Using configuration: {}", config_path);
     log::info!("Hearing to ARP requests using: {}", interface_name);

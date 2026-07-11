@@ -17,12 +17,7 @@ authors = ["Facundo Acevedo <facevedo@disroot.org>"]
 # linker = "mips-linux-musl-gcc"
 # rustflags = ["-C", "target-feature=+crt-static", "-C", "link-arg=-s"]
 
-[dependencies.simple_logger]
-version = "4.1.0"
-default-features = false
-features = ["timestamps"]
-
 [dependencies]
-log = "0.4.18"
-pnet = "0.34.0"
-rust-ini = "0.20.0"
+log = "0.4"
+pnet = "0.35"
+rust-ini = "0.21"
