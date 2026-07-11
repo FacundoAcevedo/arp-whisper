@@ -21,3 +21,6 @@ authors = ["Facundo Acevedo <facevedo@disroot.org>"]
 log = "0.4"
 pnet = "0.35"
 rust-ini = "0.21"
+
+[dev-dependencies]
+cargo-tarpaulin = "0.37"

@@ -14,6 +14,7 @@ help:
 		'  check       Type-check the project without building artifacts' \
 		'  clippy      Run clippy across all targets' \
 		'  test        Run the test suite' \
+		'  coverage    Run test coverage with tarpaulin' \
 		'  build       Build the binary in debug mode' \
 		'  build-release Build the binary in release mode' \
 		'  run         Run the binary with CONFIG=$(CONFIG)' \
@@ -44,6 +45,10 @@ lint: clippy
 .PHONY: test
 test:
 	$(CARGO) test --all-targets
+
+.PHONY: coverage
+coverage:
+	$(CARGO) tarpaulin --all-features --all-targets --out Html --output-dir target/coverage
 
 .PHONY: build
 build:
