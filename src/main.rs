@@ -7,7 +7,7 @@ use std::sync::OnceLock;
 
 use ini::Ini;
 
-use crate::network::{new_host, respond_arp_queries};
+use crate::network::{parse_host, respond_arp_queries, Host, NetworkError};
 
 struct StderrLogger;
 
@@ -46,7 +46,6 @@ fn main() {
         }
     };
 
-    // Parse the configuration
     let conf = match Ini::load_from_file(config_path.clone()) {
         Ok(conf) => conf,
         Err(error) => {
@@ -77,12 +76,30 @@ fn main() {
     log::info!("Using configuration: {}", config_path);
     log::info!("Hearing to ARP requests using: {}", interface_name);
 
-    // Let's get all the Hosts
-    let mut hosts = Vec::new();
-    for (k, v) in conf.section(Some("Hosts")).unwrap().iter() {
-        hosts.push(new_host(k, v));
-    }
+    let hosts = match load_hosts(&conf) {
+        Ok(hosts) => hosts,
+        Err(error) => {
+            eprintln!("Error loading hosts from configuration: {}", error);
+            process::exit(1);
+        }
+    };
     log::debug!("Hosts defined in configuration: {}", hosts.len());
 
-    respond_arp_queries(interface_name, hosts);
+    if let Err(error) = respond_arp_queries(interface_name, &hosts) {
+        eprintln!("ARP responder failed: {}", error);
+        process::exit(1);
+    }
+}
+
+fn load_hosts(conf: &Ini) -> Result<Vec<Host>, NetworkError> {
+    let hosts_section = conf
+        .section(Some("Hosts"))
+        .ok_or(NetworkError::MissingHostsSection)?;
+
+    let mut hosts = Vec::with_capacity(hosts_section.len());
+    for (ip_address, mac_address) in hosts_section {
+        hosts.push(parse_host(ip_address, mac_address)?);
+    }
+
+    Ok(hosts)
 }
