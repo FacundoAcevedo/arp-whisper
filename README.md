@@ -20,11 +20,17 @@ It listens for ARP requests on one interface and replies with the MAC address co
 
 ## Configuration
 
-The binary expects a config file path as its only argument:
+The binary supports these commands:
 
 ```bash
 arp-whisper <CONFIG_PATH>
+arp-whisper --validate-config <CONFIG_PATH>
+arp-whisper --version
 ```
+
+`--validate-config` checks that the configuration file can be read, has a non-empty
+`[Network].interface`, includes a `[Hosts]` section, and uses a supported
+`logging_level` when one is configured. It does not access network interfaces.
 
 Example configuration:
 
