@@ -1,6 +1,6 @@
 [package]
 name = "arp-whisper"
-version = "0.1.2"
+version = "1.0.0"
 edition = "2021"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENCE"]
 homepage = "https://github.com/FacundoAcevedo/arp-whisper.git"
